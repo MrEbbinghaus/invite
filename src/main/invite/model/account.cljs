@@ -30,5 +30,5 @@
     (log/info "Error action"))
   (remote [env]
     (-> env
-      (m/returning 'app.ui.root/User)
+      (m/returning 'invite.ui.root/User)
       (m/with-target (targeting/append-to [:all-accounts])))))

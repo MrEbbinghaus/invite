@@ -16,13 +16,13 @@
   (-> env
     (clear)
     (uism/assoc-aliased :username "" :session-valid? false :current-user "")
-    (uism/trigger-remote-mutation :actor/login-form 'app.model.session/logout {})
+    (uism/trigger-remote-mutation :actor/login-form 'invite.model.session/logout {})
     (uism/activate :state/logged-out)))
 
 (defn login [{::uism/keys [event-data] :as env}]
   (-> env
     (clear)
-    (uism/trigger-remote-mutation :actor/login-form 'app.model.session/login
+    (uism/trigger-remote-mutation :actor/login-form 'invite.model.session/login
       {:username          (:username event-data)
        :password          (:password event-data)
        ::m/returning      (uism/actor-class env :actor/current-session)
@@ -91,7 +91,7 @@
                                     ::uism/handler       login}})}}})
 
 (def signup-ident [:component/id :signup])
-(defn signup-class [] (comp/registry-key->class :app.ui.root/Signup))
+(defn signup-class [] (comp/registry-key->class :invite.ui.root/Signup))
 
 (defn clear-signup-form*
   "Mutation helper: Updates state map with a cleared signup form that is configured for form state support."
@@ -115,7 +115,7 @@
     (log/info "Marking complete")
     (swap! state fs/mark-complete* signup-ident))
   (ok-action [{:keys [invite state]}]
-    (dr/change-route app ["signup-success"]))
+    (dr/change-route SPA ["signup-success"]))
   (remote [{:keys [state] :as env}]
     (let [{:account/keys [email password password-again]} (get-in @state signup-ident)]
       (boolean (and (valid-email? email) (valid-password? password)
