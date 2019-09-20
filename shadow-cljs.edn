@@ -11,7 +11,8 @@
                                     {:external-config {:ghostwheel {}}}}
 
                        :devtools   {:after-load invite.client/refresh
-                                    :preloads   [com.fulcrologic.fulcro.inspect.preload invite.development-preload]}}
+                                    :preloads   [com.fulcrologic.fulcro.inspect.preload invite.development-preload]
+                                    :watch-dir "resources/public"}}
 
           :test       {:target           :browser-test
                        :test-dir         "resources/public/js/test"
