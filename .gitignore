@@ -2,3 +2,4 @@
 .shadow-cljs/
 .cpcache/
 resources/public/js/
+resources/public/css
