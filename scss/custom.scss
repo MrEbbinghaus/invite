@@ -1,5 +1,30 @@
-@import "../node_modules/bootstrap/scss/bootstrap";
+$primary: white;
+$secondary: transparent;
+$light: white;
 
-h1, h2, h3, h4, h5, h6 {
-  text-align: center
+@import "../node_modules/bootstrap/scss/bootstrap";
+@import "forsted_sheet";
+
+.btn {
+  border-radius: 2rem;
+
+  &.btn-primary {
+    color: black;
+  }
+}
+
+
+
+.root{
+  &.disco {
+    background: linear-gradient(-45deg, #FC466B 0%, #3F5EFB 100%);
+  }
+
+  &.ocean{
+    background: linear-gradient(45deg, #1CB5E0 0%, #000851 100%);
+  }
+
+  &.rising-lagoon{
+    background: linear-gradient(135deg, #22C1C3 0%, #FDBB2D 100%);
+  }
 }

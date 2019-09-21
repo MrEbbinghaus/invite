@@ -13,187 +13,96 @@
     [com.fulcrologic.fulcro.algorithms.merge :as merge]
     [com.fulcrologic.fulcro-css.css :as css]
     [com.fulcrologic.fulcro.algorithms.form-state :as fs]
-    [taoensso.timbre :as log]))
+    [taoensso.timbre :as log]
+    ["react-dom" :as R]
+    ["jquery" :as $]
+    [goog.object :as gobj]
+    [clojure.string :refer [escape]]
+    [markdown.core :as markdown]))
 
-(defn field [{:keys [label valid? error-message] :as props}]
-  (let [input-props (-> props (assoc :name label) (dissoc :label :valid? :error-message))]
-    (div :.ui.field
-      (dom/label {:htmlFor label} label)
-      (dom/input input-props)
-      (dom/div :.ui.error.message {:classes [(when valid? "hidden")]}
-        error-message))))
+(defsc AttendeeInput [this {:keys [form/id] :attendee/keys [name]}]
+  {:query [:form/id :attendee/name fs/form-config-join]
+   :ident (fn [] [:form/id :new-attendee])
+   :form-fields  #{:attendee/name}
+   :initial-state (fn [_]
+                    (fs/add-form-config AttendeeInput
+                      {:attendee/name ""}))}
+  (dom/form
+    {:onSubmit (fn [e]
+                 (.preventDefault e))}
+    (dom/div :.form-group
+      (dom/label "Wie lautet dein Name?"
+        (dom/input :.form-control
+          {:type "text"
+           :placeholder "Name"
+           :value name
+           :onChange #(m/set-string! this :attendee/name :event %)})))
+    (button :.btn.btn-light {:type "submit"} "Absenden")))
 
-(defsc SignupSuccess [this props]
-  {:query         ['*]
-   :initial-state {}
-   :ident         (fn [] [:component/id :signup-success])
-   :route-segment ["signup-success"]}
-  (div
-    (dom/h3 "Signup Complete!")
-    (dom/p "You can now log in!")))
+(def ui-attendee-input (comp/factory AttendeeInput))
 
-(defsc Signup [this {:account/keys [email password password-again] :as props}]
-  {:query             [:account/email :account/password :account/password-again fs/form-config-join]
-   :initial-state     (fn [_]
-                        (fs/add-form-config Signup
-                          {:account/email          ""
-                           :account/password       ""
-                           :account/password-again ""}))
-   :form-fields       #{:account/email :account/password :account/password-again}
-   :ident             (fn [] session/signup-ident)
-   :route-segment     ["signup"]
-   :componentDidMount (fn [this]
-                        (comp/transact! this [(session/clear-signup-form)]))}
-  (let [submit!  (fn [evt]
-                   (when (or (identical? true evt) (evt/enter-key? evt))
-                     (comp/transact! this [(session/signup! {:email email :password password})])
-                     (log/info "Sign up")))
-        checked? (fs/checked? props)]
-    (div
-      (dom/h3 "Signup")
-      (div :.ui.form {:classes [(when checked? "error")]}
-        (field {:label         "Email"
-                :value         (or email "")
-                :valid?        (session/valid-email? email)
-                :error-message "Must be an email address"
-                :autoComplete  "off"
-                :onKeyDown     submit!
-                :onChange      #(m/set-string! this :account/email :event %)})
-        (field {:label         "Password"
-                :type          "password"
-                :value         (or password "")
-                :valid?        (session/valid-password? password)
-                :error-message "Password must be at least 8 characters."
-                :onKeyDown     submit!
-                :autoComplete  "off"
-                :onChange      #(m/set-string! this :account/password :event %)})
-        (field {:label         "Repeat Password" :type "password" :value (or password-again "")
-                :autoComplete  "off"
-                :valid?        (= password password-again)
-                :error-message "Passwords do not match."
-                :onChange      #(m/set-string! this :account/password-again :event %)})
-        (dom/button :.ui.primary.button {:onClick #(submit! true)}
-          "Sign Up")))))
+(defn markdown-render [content]
+  (dom/div {:dangerouslySetInnerHTML {:__html (markdown/md->html content)}}))
 
-(declare Session)
+(defsc Event [this {:event/keys [slug content attendee-input] :as props}]
+  {:query         [:event/slug
+                   :event/content
+                   {:event/attendee-input (comp/get-query AttendeeInput)}]
+   :ident         :event/slug
+   :route-segment [:event/slug]
+   :initial-state {:event/slug "hacktoberfest2019"
+                   :event/content "# Hacktoberfest 2019\nBald geht es wieder los. Der Oktober ist ganz der Open-Source Community gewidmet.\n \nWir bieten Zeit und Raum um zusammen Dinge zu coden. \n\nLorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est "
+                   :event/attendee-input {}}
+   :initLocalState     (fn [this _]
+                         {:attend-modal-ref (fn [r] (gobj/set this "attend-modal" r))})}
+  (let [max-height "150px"
+        attend-modal-refn (comp/get-state this :attend-modal-ref)]
+    (div :.container.pt-3.pt-md-5
+      {:style {:text-align "center"}}
+      (div :.text-white.row
+        {:style {:padding-bottom max-height}}
+        (markdown-render content))
 
-(defsc Login [this {:account/keys [email]
-                    :ui/keys      [error open?] :as props}]
-  {:query         [:ui/open? :ui/error :account/email
-                   {[:component/id :session] (comp/get-query Session)}
-                   [::uism/asm-id ::session/session]]
-   :css           [[:.floating-menu {:position "absolute !important"
-                                     :z-index  1000
-                                     :width    "300px"
-                                     :right    "0px"
-                                     :top      "50px"}]]
-   :initial-state {:account/email "" :ui/error ""}
-   :ident         (fn [] [:component/id :login])}
-  (let [current-state (uism/get-active-state this ::session/session)
-        {current-user :account/name} (get props [:component/id :session])
-        initial?      (= :initial current-state)
-        loading?      (= :state/checking-session current-state)
-        logged-in?    (= :state/logged-in current-state)
-        {:keys [floating-menu]} (css/get-classnames Login)
-        password      (or (comp/get-state this :password) "")] ; c.l. state for security
-    (dom/div
-      (when-not initial?
-        (dom/div :.right.menu
-          (if logged-in?
-            (dom/button :.item
-              {:onClick #(uism/trigger! this ::session/session :event/logout)}
-              (dom/span current-user) ent/nbsp "Log out")
-            (dom/div :.item {:style   {:position "relative"}
-                             :onClick #(uism/trigger! this ::session/session :event/toggle-modal)}
-              "Login"
-              (when open?
-                (dom/div :.four.wide.ui.raised.teal.segment {:onClick (fn [e]
-                                                                        ;; Stop bubbling (would trigger the menu toggle)
-                                                                        (evt/stop-propagation! e))
-                                                             :classes [floating-menu]}
-                  (dom/h3 :.ui.header "Login")
-                  (div :.ui.form {:classes [(when (seq error) "error")]}
-                    (field {:label    "Email"
-                            :value    email
-                            :onChange #(m/set-string! this :account/email :event %)})
-                    (field {:label    "Password"
-                            :type     "password"
-                            :value    password
-                            :onChange #(comp/set-state! this {:password (evt/target-value %)})})
-                    (div :.ui.error.message error)
-                    (div :.ui.field
-                      (dom/button :.ui.button
-                        {:onClick (fn [] (uism/trigger! this ::session/session :event/login {:username email
-                                                                                             :password password}))
-                         :classes [(when loading? "loading")]} "Login"))
-                    (div :.ui.message
-                      (dom/p "Don't have an account?")
-                      (dom/a {:onClick (fn []
-                                         (uism/trigger! this ::session/session :event/toggle-modal {})
-                                         (dr/change-route this ["signup"]))}
-                        "Please sign up!"))))))))))))
+      (div :.bottom.container-fluid.mt-auto.fixed-bottom
+        {:style {:display "block"
+                 :left "0px"
+                 :right "0px"
+                 :padding "20px"
+                 :max-height "max-height"
+                 :-webkit-backdrop-filter "blur(10px)";
+                 :backdrop-filter "blur(10px)"}}
+        (div :.row.justify-content-center
+          (button :.btn.btn-lg.btn-primary.m-1
+            {:onClick #(-> this (gobj/get "attend-modal") $ (.modal "show"))} "Teilnehmen"))
+        (div :.row.justify-content-center
+          (button :.btn.btn-secondary.m-1
+            {:onClick #(-> this (gobj/get "modal") $ (.modal "show"))} "Wer nimmt sonst teil?")))
 
-(def ui-login (comp/factory Login))
 
-(defsc Main [this props]
-  {:query         [:main/welcome-message]
-   :initial-state {:main/welcome-message "Hi!"}
-   :ident         (fn [] [:component/id :main])
-   :route-segment ["main"]}
-  (div :.ui.container.segment
-    (h3 "Main")))
-
-(defsc Settings [this {:keys [:account/time-zone :account/real-name] :as props}]
-  {:query         [:account/time-zone :account/real-name]
-   :ident         (fn [] [:component/id :settings])
-   :route-segment ["settings"]
-   :initial-state {}}
-  (div :.ui.container.segment
-    (h3 "Settings")))
+      (div :.modal.frosted-sheet.fade
+        {:ref attend-modal-refn
+         :tabIndex -1
+         :role "dialog"}
+        (div :.modal-dialog
+          (div :.modal-content
+            (div :.modal-body.container
+              (ui-attendee-input attendee-input))
+            (button :.close
+              {:type "button"
+               :aria-label "Close"
+               :data-dismiss "modal"}
+              (dom/span {:aria-hidden true} "×"))))))))
 
 (dr/defrouter TopRouter [this props]
-  {:router-targets [Main Signup SignupSuccess Settings]})
+  {:router-targets [Event]})
 
 (def ui-top-router (comp/factory TopRouter))
 
-(defsc Session
-  "Session representation. Used primarily for server queries. On-screen representation happens in Login component."
-  [this {:keys [:session/valid? :account/name] :as props}]
-  {:query         [:session/valid? :account/name]
-   :ident         (fn [] [:component/id :session])
-   :pre-merge     (fn [{:keys [data-tree]}]
-                    (merge {:session/valid? false :account/name ""}
-                      data-tree))
-   :initial-state {:session/valid? false :account/name ""}})
-
-(def ui-session (comp/factory Session))
-
-(defsc TopChrome [this {:root/keys [router current-session login]}]
-  {:query         [{:root/router (comp/get-query TopRouter)}
-                   {:root/current-session (comp/get-query Session)}
-                   [::uism/asm-id ::TopRouter]
-                   {:root/login (comp/get-query Login)}]
-   :ident         (fn [] [:component/id :top-chrome])
-   :initial-state {:root/router          {}
-                   :root/login           {}
-                   :root/current-session {}}}
-  (let [current-tab (some-> (dr/current-route this this) first keyword)]
-    (div :.ui.container
-      (div :.ui.secondary.pointing.menu
-        (dom/a :.item {:classes [(when (= :main current-tab) "active")]
-                       :onClick (fn [] (dr/change-route this ["main"]))} "Main")
-        (dom/a :.item {:classes [(when (= :settings current-tab) "active")]
-                       :onClick (fn [] (dr/change-route this ["settings"]))} "Settings")
-        (div :.right.menu
-          (ui-login login)))
-      (div :.ui.grid
-        (div :.ui.row
-          (ui-top-router router))))))
-
-(def ui-top-chrome (comp/factory TopChrome))
-
-(defsc Root [this {:root/keys [top-chrome]}]
-  {:query         [{:root/top-chrome (comp/get-query TopChrome)}]
+(defsc Root [this {:root/keys [router]}]
+  {:query         [{:root/router (comp/get-query TopRouter)}]
    :ident         (fn [] [:component/id :ROOT])
-   :initial-state {:root/top-chrome {}}}
-  (ui-top-chrome top-chrome))
+   :initial-state {:root/router {}}
+   :css [[:.root {:min-height "100vh"}]]}
+  (div :.root.disco {:classes [(:root (css/get-classnames Root))]}
+    (ui-top-router router)))
+
