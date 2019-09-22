@@ -21,7 +21,7 @@
     [clojure.string :refer [escape]]
     [markdown.core :as markdown]))
 
-(defsc AttendeeInput [this {:keys [form/id] :attendee/keys [name]} {:event/keys [slug]}]
+(defsc AttendeeInput [this {:attendee/keys [name]} {:event/keys [slug]}]
   {:query [:form/id :attendee/name fs/form-config-join]
    :ident (fn [] [:form/id :new-attendee])
    :form-fields  #{:attendee/name}
@@ -31,7 +31,6 @@
   (dom/form
     {:onSubmit (fn submit-attendee-form [e]
                  (.preventDefault e)
-                 (js/console.log e)
                  (comp/transact! this [(event/attend-event {:event/slug slug
                                                             :attendee/id (random-uuid)
                                                             :attendee/name name})]))}
@@ -63,9 +62,9 @@
   (let [max-height "150px"
         attend-modal-refn (comp/get-state this :attend-modal-ref)]
     (div :.container.pt-3.pt-md-5
-      {:style {:text-align "center"}}
+      {:style {:textAlign "center"}}
       (div :.text-white.row
-        {:style {:padding-bottom max-height}}
+        {:style {:paddingBottom max-height}}
         (markdown-render content))
 
       (div :.bottom.container-fluid.mt-auto.fixed-bottom
@@ -73,9 +72,9 @@
                  :left "0px"
                  :right "0px"
                  :padding "20px"
-                 :max-height "max-height"
-                 :-webkit-backdrop-filter "blur(10px)";
-                 :backdrop-filter "blur(10px)"}}
+                 :maxHeight "max-height"
+                 :WebkitBackdropFilter "blur(10px)";
+                 :backdropFilter "blur(10px)"}}
         (div :.row.justify-content-center
           (button :.btn.btn-lg.btn-primary.m-1
             {:onClick #(-> this (gobj/get "attend-modal") $ (.modal "show"))} "Teilnehmen"))
