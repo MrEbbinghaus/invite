@@ -13,9 +13,9 @@
 (defn attendee-ident [id]
   [:attendee/id id])
 
-(defresolver attendee-resolver [{:keys [db]} {:account/keys [id]}]
-  {::pc/input  #{:account/id}
-   ::pc/output [:account/name]}
+(defresolver attendee-resolver [{:keys [db]} {:attendee/keys [id]}]
+  {::pc/input  #{:attendee/id}
+   ::pc/output [:attendee/name]}
   (d/pull db '[*] (attendee-ident id)))
 
 (def resolvers [attendee-resolver])

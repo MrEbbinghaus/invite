@@ -13,7 +13,9 @@ $light: white;
   }
 }
 
-
+.list-group-item {
+  border-radius: 10000px !important;
+}
 
 .root{
   &.disco {
