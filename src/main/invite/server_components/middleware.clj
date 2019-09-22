@@ -90,7 +90,7 @@
     (-> not-found-handler
       (wrap-api "/api")
       wrap-transit-params
-      wrap-transit-response
+      (wrap-transit-response {:opts {:transform #(when-not (fn? %) %)}})
       (wrap-html-routes)
       ;; If you want to set something like session store, you'd do it against
       ;; the defaults-config here (which comes from an EDN file, so it can't have

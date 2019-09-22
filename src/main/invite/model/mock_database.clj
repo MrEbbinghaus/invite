@@ -9,16 +9,27 @@
 ;; In datascript just about the only thing that needs schema
 ;; is lookup refs and entity refs.  You can just wing it on
 ;; everything else.
-(def schema {:user/id    {:db/cardinality :db.cardinality/one
-                          :db/type        :db.type/uuid
-                          :db/unique      :db.unique/identity}
-             :user/name  {:db/type :db.type/string}
+(def schema {:attendee/id    {:db/ident :attendee/id
+                              :db/cardinality :db.cardinality/one
+                              :db/type        :db.type/uuid
+                              :db/unique      :db.unique/identity}
+             :attendee/name  {:db/type :db.type/string}
 
-             :event/id   {:db/cardinality :db.cardinality/one
-                          :db/type        :db.type/string
-                          :db/unique      :db.unique/identity}
-             :event/body {:db/type :db.type/string}})
+             :event/slug   {:db/cardinality :db.cardinality/one
+                            :db/type        :db.type/string
+                            :db/unique      :db.unique/identity}
+             :event/content {:db/type :db.type/string}
+             :event/attendees {:db/type :db.type/ref
+                               :db/cardinality :db.cardinality/many}})
 
 (defn new-database [] (d/create-conn schema))
 
-(defstate conn :start (new-database))
+(defn example-db [conn]
+  (d/transact! conn [#:event{:slug "hacktoberfest2019"
+                             :content "# Hacktoberfest\n\nYeah!"
+                             :attendees []}]))
+
+(defstate conn :start
+  (let [c (new-database)]
+    (example-db c)
+    c))

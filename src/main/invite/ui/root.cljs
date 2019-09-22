@@ -1,6 +1,7 @@
 (ns invite.ui.root
   (:require
     [invite.model.session :as session]
+    [invite.model.event :as event]
     [clojure.string :as str]
     [com.fulcrologic.fulcro.dom :as dom :refer [div ul li p h3 button]]
     [com.fulcrologic.fulcro.dom.html-entities :as ent]
@@ -20,7 +21,7 @@
     [clojure.string :refer [escape]]
     [markdown.core :as markdown]))
 
-(defsc AttendeeInput [this {:keys [form/id] :attendee/keys [name]}]
+(defsc AttendeeInput [this {:keys [form/id] :attendee/keys [name]} {:event/keys [slug]}]
   {:query [:form/id :attendee/name fs/form-config-join]
    :ident (fn [] [:form/id :new-attendee])
    :form-fields  #{:attendee/name}
@@ -28,8 +29,12 @@
                     (fs/add-form-config AttendeeInput
                       {:attendee/name ""}))}
   (dom/form
-    {:onSubmit (fn [e]
-                 (.preventDefault e))}
+    {:onSubmit (fn submit-attendee-form [e]
+                 (.preventDefault e)
+                 (js/console.log e)
+                 (comp/transact! this [(event/attend-event {:event/slug slug
+                                                            :attendee/id (random-uuid)
+                                                            :attendee/name name})]))}
     (dom/div :.form-group
       (dom/label "Wie lautet dein Name?"
         (dom/input :.form-control
@@ -86,7 +91,7 @@
         (div :.modal-dialog
           (div :.modal-content
             (div :.modal-body.container
-              (ui-attendee-input attendee-input))
+              (ui-attendee-input (comp/computed attendee-input {:event/slug slug})))
             (button :.close
               {:type "button"
                :aria-label "Close"

@@ -3,7 +3,7 @@
     <module name="invite" />
     <setting name="replType" value="NREPL" />
     <setting name="execution" value="INTELLIJ" />
-    <setting name="jvmArgs" value="" />
+    <setting name="jvmArgs" value="-Dtrace" />
     <setting name="parameters" value="" />
     <setting name="workingDir" value="$PROJECT_DIR$" />
     <setting name="profiles" value="" />

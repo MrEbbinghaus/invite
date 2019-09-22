@@ -6,7 +6,8 @@
     [com.wsscode.pathom.core :as p]
     [com.wsscode.common.async-clj :refer [let-chan]]
     [clojure.core.async :as async]
-    [invite.model.account :as acct]
+    [invite.model.attendee :as att]
+    [invite.model.event :as es]
     [invite.model.session :as session]
     [invite.server-components.config :refer [config]]
     [invite.model.mock-database :as db]))
@@ -15,11 +16,9 @@
   {::pc/input  #{:com.wsscode.pathom.viz.index-explorer/id}
    ::pc/output [:com.wsscode.pathom.viz.index-explorer/index]}
   {:com.wsscode.pathom.viz.index-explorer/index
-   (-> (get env ::pc/indexes)
-     (update ::pc/index-resolvers #(into [] (map (fn [[k v]] [k (dissoc v ::pc/resolve)])) %))
-     (update ::pc/index-mutations #(into [] (map (fn [[k v]] [k (dissoc v ::pc/mutate)])) %)))})
+     (get env ::pc/indexes)})
 
-(def all-resolvers [acct/resolvers session/resolvers index-explorer])
+(def all-resolvers [att/resolvers es/resolvers index-explorer])
 
 (defn preprocess-parser-plugin
   "Helper to create a plugin that can view/modify the env/tx of a top-level request.
