@@ -52,12 +52,10 @@
     font-size: 3rem;
     font-weight: 300;
   }
-}
 
-.modal.fade.frosted-sheet .modal-dialog {
-  // transform: translate(0, 100vh);
-}
-
-.modal.show.frosted-sheet .modal-dialog {
-  // transform: translate(0, 50vh);
+  &.modal:not(.show) {
+    .modal-dialog {
+      transform: translate(0, 100vh);
+    }
+  }
 }
