@@ -60,17 +60,19 @@
     {:ref      ref
      :tabIndex -1
      :role     "dialog"}
-    (div :.modal-dialog
-      (div :.modal-content
-        (when head
-          (div :.modal-header head))
-        (div :.modal-body.container
-          body)
-        (button :.close
-          {:type         "button"
-           :aria-label   "Close"
-           :data-dismiss "modal"}
-          (dom/span {:aria-hidden true} "×"))))))
+    (div :.spacer-frame
+      (div :.spacer)
+      (div :.modal-dialog
+        (div :.modal-content
+          (when head
+            (div :.modal-header head))
+          (div :.modal-body.container
+            body)
+          (button :.close
+            {:type         "button"
+             :aria-label   "Close"
+             :data-dismiss "modal"}
+            (dom/span {:aria-hidden true} "×")))))))
 
 (defsc Event [this {:event/keys [slug content attendee-input attendees]}]
   {:query          [:event/slug

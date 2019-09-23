@@ -1,11 +1,22 @@
 .frosted-sheet {
 
+  > .spacer-frame {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    pointer-events: none;
+
+    > .spacer {
+      min-height: 50vh;
+      pointer-events: none;
+    }
+  }
+
+
   .modal-dialog {
-    position: absolute !important;
-    bottom: 0px !important;
-    left: 0px !important;
     width: 100vw !important;
-    max-width: 100%;
+    max-width: none;
     margin: 0;
     background: none;
     box-shadow: inset 0 -.5rem 0.5rem rgba(50, 50, 50, 0.15) !important;
@@ -44,9 +55,9 @@
 }
 
 .modal.fade.frosted-sheet .modal-dialog {
-  transform: translate(0, 500px);
+  // transform: translate(0, 100vh);
 }
 
 .modal.show.frosted-sheet .modal-dialog {
-  transform: none;
+  // transform: translate(0, 50vh);
 }
