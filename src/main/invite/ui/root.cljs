@@ -47,8 +47,9 @@
 (def ui-attendee-input (comp/factory AttendeeInput))
 
 (defsc AttendeeListItem [_this {:attendee/keys [name]}]
-  {:query [:attendee/id :attendee/name]}
-  (dom/li :.list-group-item name))
+  {:query [:attendee/id :attendee/name]
+   :ident :attendee/id}
+  (dom/li :.list-group-item (clojure.string/capitalize name)))
 
 (def ui-attendee-list-entry (comp/factory AttendeeListItem))
 
@@ -121,7 +122,7 @@
         :head (h3 "Teilnehmer")
         :body (dom/ul :.list-group
                 (->> attendees
-                  (sort-by :attendee/name)
+                  (sort-by (comp clojure.string/capitalize :attendee/name))
                   (map ui-attendee-list-entry)))))))
 
 (dr/defrouter TopRouter [this props]
