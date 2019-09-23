@@ -1,6 +1,11 @@
-== The Project
+tl;dr
+```shell
+$ yarn install
+$ npx shadow-cljs watch :main # compile and watch :main (or use :workspace or :test)
+$ clojure -A:dev -J-Dtrace -J-Dghostwheel.enabled=true # run backend (needed for :main)
+```
 
-NOTE: This template is in progress. It should be working, but is intended to have a lot more features.
+== The Project
 
 Dependency Aliases:
 
@@ -17,12 +22,6 @@ it to your `package.json`.
 
 You also cannot compile this project until you install the ones it
 depends on already:
-
-```
-$ npm install
-```
-
-or if you prefer `yarn`:
 
 ```
 $ yarn install
