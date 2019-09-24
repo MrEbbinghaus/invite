@@ -3,7 +3,14 @@ tl;dr
 $ yarn install
 $ npx shadow-cljs watch :main # compile and watch :main (or use :workspace or :test)
 $ clojure -A:dev -J-Dtrace -J-Dghostwheel.enabled=true # run backend (needed for :main)
+
+# or everything with yarn
+$ yarn install
+$ yarn run client/main
+$ yarn run server
 ```
+
+visit [localhost:3000](localhost:3000)
 
 == The Project
 
